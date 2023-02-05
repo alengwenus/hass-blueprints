@@ -60,17 +60,33 @@ blueprint:
           unit_of_measurement: min
           mode: slider
           step: 0.25
+    timeout:
+      name: Timeout
+      description:
+        Time after which the automation gets aborted (in case power does not
+        dropt to finishing threshold).
+      default: 5
+      selector:
+        number:
+          min: 0.5
+          max: 12.0
+          unit_of_measurement: h
+          mode: slider
+          step: 0.5
     actions:
       name: Actions
       description: Actions (e.g. pushing a notification, TTS announcement, ...)
+      default: []
       selector:
         action: {}
     pre_actions:
       name: Actions
       description: Actions when starting threshhold is crossed
+      default: []
       selector:
         action: {}
   source_url: https://github.com/alengwenus/hass-blueprints/blueprints/trigger-when-appliance-has-finished.yaml
+
 trigger:
   - platform: numeric_state
     entity_id: !input power_sensor
@@ -87,6 +103,9 @@ action:
         below: !input finishing_threshold
         for:
           minutes: !input finishing_hysteresis
+    timeout:
+      hours: !input timeout
+    continue_on_timeout: false
   - choose: []
     default: !input actions
 mode: single
