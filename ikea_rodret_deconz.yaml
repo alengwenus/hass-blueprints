@@ -1,0 +1,40 @@
+blueprint:
+  name: IKEA RODRET deCONZ
+  description: Trigger action by IKEA RODRET (deCONZ).
+  domain: automation
+  input:
+    rodret_switch:
+      name: RODRET Switch
+      description: IKEA RODRET switch which triggers action.
+      selector:
+        device:
+          filter:
+            - integration: deconz
+              manufacturer: IKEA of Sweden
+              model: RODRET Dimmer
+    target_entity:
+      name: Target entity
+      description: Entity to turn on/off.
+      selector:
+        entity:
+          filter:
+            - domain: [light, switch]
+
+trigger:
+  - platform: event
+    event_type: deconz_event
+    event_data:
+      device_id: !input rodret_switch
+
+action:
+  - choose:
+      - conditions: "{{ trigger.event.data.event == 1002 }}"
+        sequence:
+          - service: homeassistant.turn_on
+            target:
+              entity_id: !input target_entity
+      - conditions: "{{ trigger.event.data.event == 2002 }}"
+        sequence:
+          - service: homeassistant.turn_off
+            target:
+              entity_id: !input target_entity
